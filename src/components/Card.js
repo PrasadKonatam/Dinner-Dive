@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import cardData from "./CardData";
 import "./style.css";
 import { ADD } from "../redux/actions/action";
 
 export default function Cards() {
-  const [data, setData] = useState(cardData);
+  // const [data, setData] = useState(cardData);
+  const data = cardData;
 
   const dispatch = useDispatch();
 
-  const send = (e) => {
-    dispatch(ADD(e));
+  const send = (item) => {
+    dispatch(ADD(item));
   };
 
   return (
@@ -20,26 +21,26 @@ export default function Cards() {
         {data.map((item, id) => {
           return (
             <div
-              className=" card_style card m-1"
+              className="card_style card m-1"
               key={id}
               style={{ width: "20rem" }}
             >
               <img
                 src={item.imgdata}
                 className="card-img-top mt-2"
-                alt="Cart"
-                style={{ height: "15rem", width: "" }}
+                alt={item.rname}
+                style={{ height: "15rem" }}
               />
               <div className="card-body">
                 <h5 className="card-title">{item.rname}</h5>
                 <p className="card-text">Price : ₹{item.price}</p>
-                <a
-                  href="#"
+                <button
+                  type="button"
                   className="btn btn-primary col-lg-12"
                   onClick={() => send(item)}
                 >
                   Add to Cart
-                </a>
+                </button>
               </div>
             </div>
           );

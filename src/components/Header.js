@@ -15,22 +15,22 @@ import { Table } from "@mui/material";
 import { DLT } from "../redux/actions/action";
 
 function Header() {
-  const [price, setPrice] = React.useState();
+  const [price, setPrice] = React.useState(0);
   const getData = useSelector((state) => state.cartReducer.cart);
-
   const dispatch = useDispatch();
 
   const dlt = (id) => {
     dispatch(DLT(id));
   };
 
-  const total = () => {
-    let price = 0;
-    getData.map((ele, k) => {
-      price = ele.price * ele.qnty + price;
+  // Using useCallback to avoid unnecessary re-renders
+  const total = React.useCallback(() => {
+    let totalPrice = 0;
+    getData.forEach((ele) => {
+      totalPrice += ele.price * ele.qnty;
     });
-    setPrice(price);
-  };
+    setPrice(totalPrice);
+  }, [getData]);
 
   React.useEffect(() => {
     total();
@@ -47,7 +47,6 @@ function Header() {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
-
     setOpen(false);
   };
 
@@ -65,7 +64,6 @@ function Header() {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
-
     prevOpen.current = open;
   }, [open]);
 
@@ -73,19 +71,11 @@ function Header() {
     <>
       <Navbar bg="dark" data-bs-theme="dark" style={{ height: "60px" }}>
         <Container className="m-3">
-          <NavLink
-            to="/"
-            className="text-decoration-none text-light mx-2"
-            href="#home"
-          >
+          <NavLink to="/" className="text-decoration-none text-light mx-2">
             Dinner Dive
           </NavLink>
           <Nav className="me-auto">
-            <NavLink
-              to="/"
-              className="text-decoration-none text-light"
-              href="#home"
-            >
+            <NavLink to="/" className="text-decoration-none text-light">
               Home
             </NavLink>
           </Nav>
@@ -98,7 +88,7 @@ function Header() {
             aria-controls={open ? "composition-menu" : undefined}
             aria-expanded={open ? "true" : undefined}
             aria-haspopup="true"
-            onClick={handleToggle} // Moved click handler here for better UX
+            onClick={handleToggle}
           >
             <i
               className="fa-solid fa-cart-shopping text-light"
@@ -107,7 +97,6 @@ function Header() {
           </Badge>
         </Container>
 
-        {/* Adjusted Popper for better z-index and positioning */}
         <Popper
           open={open}
           anchorEl={anchorRef.current}
@@ -115,15 +104,6 @@ function Header() {
           placement="bottom-start"
           transition
           disablePortal
-          modifiers={[
-            {
-              name: "zIndex",
-              enabled: true,
-              options: {
-                zIndex: 1500, // Ensure Popper has a high z-index
-              },
-            },
-          ]}
           style={{ zIndex: 1500 }}
         >
           {({ TransitionProps, placement }) => (
@@ -144,7 +124,7 @@ function Header() {
                   >
                     {getData.length ? (
                       <div
-                        className="cart-details "
+                        className="cart-details"
                         style={{ width: "25rem", padding: "10px" }}
                       >
                         <Table>
@@ -154,73 +134,44 @@ function Header() {
                               <th>Restaurant Name</th>
                             </tr>
                           </thead>
-
                           <tbody>
-                            <tr>
-                              <hr className="horizontal-line" />
-                            </tr>
-                            {getData.map((e) => {
-                              return (
-                                <tr key={e.id}>
-                                  <td>
-                                    <NavLink
-                                      to={`/cart/${e.id}`}
-                                      onClick={handleClose}
-                                    >
-                                      <img
-                                        src={e.imgdata}
-                                        alt={e.rname}
-                                        style={{
-                                          width: "9rem",
-                                          borderRadius: "2px",
-                                        }}
-                                      />
-                                    </NavLink>
-                                  </td>
-                                  <td>
-                                    <p>{e.rname}</p>
-                                    <p>Price : ₹{e.price}</p>
-                                    <p>Quantity : {e.qnty}</p>
-                                    <p
+                            {getData.map((e) => (
+                              <tr key={e.id}>
+                                <td>
+                                  <NavLink
+                                    to={`/cart/${e.id}`}
+                                    onClick={handleClose}
+                                  >
+                                    <img
+                                      src={e.imgdata}
+                                      alt={e.rname}
                                       style={{
-                                        color: "red",
-                                        cursor: "pointer",
+                                        width: "9rem",
+                                        borderRadius: "2px",
                                       }}
-                                    >
-                                      <i
-                                        className="fas fa-trash smalltrash"
-                                        onClick={() => dlt(e.id)}
-                                      ></i>
-                                    </p>
-                                  </td>
-                                  <td>
-                                    <p
-                                      style={{
-                                        color: "red",
-                                        cursor: "pointer",
-                                        margin: "1rem",
-                                        marginTop: "2rem",
-                                      }}
-                                    >
-                                      <i
-                                        className="fas fa-trash largetrash "
-                                        onClick={() => dlt(e.id)}
-                                      ></i>
-                                    </p>
-                                  </td>
-                                </tr>
-                              );
-                            })}
+                                    />
+                                  </NavLink>
+                                </td>
+                                <td>
+                                  <p>{e.rname}</p>
+                                  <p>Price: ₹{e.price}</p>
+                                  <p>Quantity: {e.qnty}</p>
+                                  <p
+                                    style={{ color: "red", cursor: "pointer" }}
+                                    onClick={() => dlt(e.id)}
+                                  >
+                                    <i className="fas fa-trash smalltrash"></i>
+                                  </p>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
-
-                          <hr className="horizontal-line" />
-
-                          <p style={{ marginLeft: "6rem" }}>Total : ₹{price}</p>
                         </Table>
+                        <p style={{ marginLeft: "6rem" }}>Total: ₹{price}</p>
                       </div>
                     ) : (
                       <div
-                        className="cart-details d-flex justify-content-center align-center p-jjj2"
+                        className="cart-details d-flex justify-content-center align-center p-2"
                         style={{ position: "relative" }}
                       >
                         <i
@@ -241,7 +192,6 @@ function Header() {
                             width: "3rem",
                             height: "3rem",
                             margin: "1rem",
-                            marginBottom: "0",
                           }}
                         />
                       </div>

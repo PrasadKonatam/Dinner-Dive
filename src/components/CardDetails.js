@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; // Correct import
 import Tabel from "react-bootstrap/Table";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { DLT, ADD, RMV } from "../redux/actions/action";
 
 function CardDetails() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // useState is used here for managing 'data'
   const { id } = useParams();
   const dispatch = useDispatch();
   const history = useNavigate();
@@ -25,23 +25,21 @@ function CardDetails() {
     dispatch(RMV(e));
   };
 
-  const compare = () => {
-    let compareData = getData.filter((e) => {
-      return e.id === parseInt(id);
-    });
-    setData(compareData);
-  };
-
   useEffect(() => {
+    const compare = () => {
+      let compareData = getData.filter((e) => e.id === parseInt(id));
+      setData(compareData);
+    };
+
     compare();
-  }, [id]);
+  }, [id, getData]);
 
   return (
     <div className="container">
       <h1 className="text-center">Item Details Page</h1>
       {data.map((ele) => {
         return (
-          <div className="iteamsdetails p-3">
+          <div className="iteamsdetails p-3" key={ele.id}>
             <div>
               <img src={ele.imgdata} alt="" style={{ height: "18rem" }} />
             </div>
@@ -50,7 +48,7 @@ function CardDetails() {
                 <tr>
                   <td>
                     <p>
-                      <strong>Restaurent</strong> : {ele.rname}
+                      <strong>Restaurant</strong> : {ele.rname}
                     </p>
                     <p>
                       <strong>Price</strong> : ₹ {ele.price}
@@ -59,7 +57,7 @@ function CardDetails() {
                       <strong>Dishes</strong> : {ele.address}
                     </p>
                     <p>
-                      <strong>Total</strong> : ₹ {ele.price * ele.qnty}{" "}
+                      <strong>Total</strong> : ₹ {ele.price * ele.qnty}
                     </p>
                     <div
                       className="d-flex justify-content-center align-items-center m-4 p-0"
@@ -107,7 +105,7 @@ function CardDetails() {
                       </span>
                     </p>
                     <p>
-                      <strong>Order Review </strong> : {ele.somedata}
+                      <strong>Order Review</strong> : {ele.somedata}
                     </p>
                     <p style={{ cursor: "pointer" }}>
                       <strong>Remove</strong> :{" "}
